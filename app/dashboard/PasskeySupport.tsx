@@ -93,7 +93,7 @@ export default function PasskeySupport() {
           userVerification: "preferred",
         },
       };
-    const credential = await navigator.credentials.create({
+    await navigator.credentials.create({
       publicKey: publicKeyCredentialCreationOptions,
     });
   }
