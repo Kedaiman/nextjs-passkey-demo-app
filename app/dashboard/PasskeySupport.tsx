@@ -66,7 +66,36 @@ export default function PasskeySupport() {
   }
 
   async function handleCreatePasskey() {
-    // TODO: パスキー作成処理
+    const challenge = new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+
+    const publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptions =
+      {
+        challenge,
+        rp: {
+          name: "Passkey Demo",
+          id: "localhost",
+        },
+        user: {
+          id: new Uint8Array([65, 66, 67, 49, 50, 51]).buffer,
+          name: "gihyo.shiro",
+          displayName: "技評 四郎",
+        },
+        pubKeyCredParams: [
+          { alg: -8, type: "public-key" }, // Ed25519
+          { alg: -7, type: "public-key" }, // ES256
+          { alg: -257, type: "public-key" }, // RS256
+        ],
+        excludeCredentials: [],
+        authenticatorSelection: {
+          authenticatorAttachment: "platform",
+          requireResidentKey: true,
+          userVerification: "preferred",
+        },
+      };
+    const credential = await navigator.credentials.create({
+      publicKey: publicKeyCredentialCreationOptions,
+    });
   }
 
   if (status === "supported") {
