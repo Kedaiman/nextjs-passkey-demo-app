@@ -13,7 +13,15 @@ const getInitialStatus = (): SupportStatus => {
   return "checking";
 };
 
-export default function PasskeySupport() {
+type PasskeySupportProps = {
+  userId: string;
+  email: string;
+};
+
+export default function PasskeySupport({
+  userId,
+  email,
+}: PasskeySupportProps) {
   // const [ステートの値, ステートを更新する関数] = useState<ステートの型>(初期値);
   const [status, setStatus] = useState<SupportStatus>(getInitialStatus);
   const [conditionalMediationAvailable, setConditionalMediationAvailable] =
@@ -77,9 +85,9 @@ export default function PasskeySupport() {
           // id: "vercel.app",
         },
         user: {
-          id: new Uint8Array([65, 66, 67, 49, 50, 51]).buffer,
-          name: "gihyo.shiro",
-          displayName: "技評 四郎",
+          id: new TextEncoder().encode(userId),
+          name: email,
+          displayName: email,
         },
         pubKeyCredParams: [
           { alg: -8, type: "public-key" }, // Ed25519
