@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -86,7 +86,7 @@ export default function LoginPage() {
         <p className="mt-4 text-center text-sm text-gray-500">
           No account?{" "}
           <Link href="/register" className="text-blue-600 hover:underline">
-            Register
+            Register!
           </Link>
         </p>
       </div>
