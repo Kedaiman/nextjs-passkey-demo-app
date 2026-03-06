@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 type SupportStatus = "checking" | "supported" | "unsupported";
 
 const getInitialStatus = (): SupportStatus => {
+  // ブラウザがパスキーをサポートしているか確認
   if (typeof window === "undefined" || !window.PublicKeyCredential) {
     return "unsupported";
   }
@@ -15,8 +16,10 @@ const getInitialStatus = (): SupportStatus => {
 export default function PasskeySupport() {
   // const [ステートの値, ステートを更新する関数] = useState<ステートの型>(初期値);
   const [status, setStatus] = useState<SupportStatus>(getInitialStatus);
+  const [conditionalMediationAvailable, setConditionalMediationAvailable] =
+    useState<boolean | null>(null);
 
-  /* 
+  /*
   副作用フック（コンポーネントの更新時に自動的に処理を実行させるためのもの）
   useEffect(関数, ステートを配列で指定(このステートが更新されたときに関数を実行する));
   ※第二引数の配列を空にすると、コンポーネントの初回レンダリング後に一度だけ関数が実行される
@@ -27,18 +30,24 @@ export default function PasskeySupport() {
       return;
     }
 
-    // ユーザの利用しているデバイスがパスキーをサポートしているかを確認
     let isCancelled = false;
 
-    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
-      .then((available) => {
+    Promise.all([
+      // ユーザの利用しているデバイスがパスキーをサポートしているかを確認
+      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(),
+      // フォームオートフィルログイン（Conditional UI）が利用可能かを確認
+      PublicKeyCredential.isConditionalMediationAvailable(),
+    ])
+      .then(([available, conditionalAvailable]) => {
         if (!isCancelled) {
           setStatus(available ? "supported" : "unsupported");
+          setConditionalMediationAvailable(conditionalAvailable);
         }
       })
       .catch(() => {
         if (!isCancelled) {
           setStatus("unsupported");
+          setConditionalMediationAvailable(false);
         }
       });
 
@@ -64,6 +73,14 @@ export default function PasskeySupport() {
         </p>
         <p className="mt-1 text-xs text-green-600">
           パスキーを登録して、より安全にログインできます。
+        </p>
+        <p className="mt-2 text-xs text-green-600">
+          フォームオートフィルログイン（Conditional UI）:{" "}
+          {conditionalMediationAvailable === null
+            ? "確認中..."
+            : conditionalMediationAvailable
+              ? "利用可能"
+              : "利用不可"}
         </p>
       </div>
     );
