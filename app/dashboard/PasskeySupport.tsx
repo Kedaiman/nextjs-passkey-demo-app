@@ -4,9 +4,17 @@ import { useEffect, useState } from "react";
 
 type SupportStatus = "checking" | "supported" | "unsupported";
 
+const getInitialStatus = (): SupportStatus => {
+  if (typeof window === "undefined" || !window.PublicKeyCredential) {
+    return "unsupported";
+  }
+
+  return "checking";
+};
+
 export default function PasskeySupport() {
   // const [ステートの値, ステートを更新する関数] = useState<ステートの型>(初期値);
-  const [status, setStatus] = useState<SupportStatus>("checking");
+  const [status, setStatus] = useState<SupportStatus>(getInitialStatus);
 
   /* 
   副作用フック（コンポーネントの更新時に自動的に処理を実行させるためのもの）
@@ -16,18 +24,27 @@ export default function PasskeySupport() {
   useEffect(() => {
     // ブラウザがパスキーをサポートしているか確認
     if (typeof window === "undefined" || !window.PublicKeyCredential) {
-      setStatus("unsupported");
       return;
     }
 
     // ユーザの利用しているデバイスがパスキーをサポートしているかを確認
+    let isCancelled = false;
+
     PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
       .then((available) => {
-        setStatus(available ? "supported" : "unsupported");
+        if (!isCancelled) {
+          setStatus(available ? "supported" : "unsupported");
+        }
       })
       .catch(() => {
-        setStatus("unsupported");
+        if (!isCancelled) {
+          setStatus("unsupported");
+        }
       });
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
   // パスキー対応状況に応じたUIを表示
