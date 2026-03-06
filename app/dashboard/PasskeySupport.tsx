@@ -74,7 +74,7 @@ export default function PasskeySupport() {
         challenge,
         rp: {
           name: "Passkey Demo",
-          id: "localhost",
+          // id: "vercel.app",
         },
         user: {
           id: new Uint8Array([65, 66, 67, 49, 50, 51]).buffer,
