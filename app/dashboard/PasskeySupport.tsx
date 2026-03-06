@@ -65,6 +65,10 @@ export default function PasskeySupport() {
     );
   }
 
+  async function handleCreatePasskey() {
+    // TODO: パスキー作成処理
+  }
+
   if (status === "supported") {
     return (
       <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-4">
@@ -82,6 +86,12 @@ export default function PasskeySupport() {
               ? "利用可能"
               : "利用不可"}
         </p>
+        <button
+          onClick={handleCreatePasskey}
+          className="mt-4 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700"
+        >
+          パスキーを作成
+        </button>
       </div>
     );
   }
