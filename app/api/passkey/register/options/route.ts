@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 
 const RP_NAME = "Passkey Demo";
 
-type PasskeyRow = { credential_id: string };
+type CredentialRow = { id: string };
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -17,20 +17,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // 登録済みパスキーを取得（再登録を防ぐため excludeCredentials に渡す）
-  const existingPasskeys = db
-    .prepare("SELECT credential_id FROM passkeys WHERE user_id = ?")
-    .all(session.userId) as PasskeyRow[];
+  // 登録済みクレデンシャルを取得（再登録を防ぐため excludeCredentials に渡す）
+  const existingCredentials = db
+    .prepare("SELECT id FROM credentials WHERE user_id = ?")
+    .all(session.userId) as CredentialRow[];
 
   const options = await generateRegistrationOptions({
     rpName: RP_NAME,
     rpID: rpId,
     userName: session.email,
     attestationType: "none",
-    excludeCredentials: existingPasskeys.map((p) => ({ id: p.credential_id })),
+    excludeCredentials: existingCredentials.map((c) => ({ id: c.id })),
     authenticatorSelection: {
       residentKey: "required",
-      userVerification: "preferred",
+      userVerification: "required",
       authenticatorAttachment: "platform",
     },
   });

@@ -76,7 +76,28 @@ export default function PasskeySupport() {
       return;
     }
     const options = await optionsRes.json();
-    await startRegistration({ optionsJSON: options });
+    let credentil;
+    try {
+      credentil = await startRegistration({ optionsJSON: options });
+    } catch (e) {
+      if (e instanceof Error && e.name === "InvalidStateError") {
+        alert("このデバイスのパスキーはすでに登録されています");
+      } else {
+        alert("パスキーの作成に失敗しました");
+      }
+      return;
+    }
+
+    // パスキー作成レスポンスの検証と保存
+    const verifyRes = await fetch("/api/passkey/register/verify", {
+      method: "POST",
+      body: JSON.stringify(credentil),
+    });
+    const verifyData = await verifyRes.json();
+    if (!verifyData.success) {
+      alert(`パスキーの登録に失敗しました"}`);
+      return;
+    }
   }
 
   if (status === "supported") {

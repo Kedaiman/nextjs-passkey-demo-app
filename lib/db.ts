@@ -31,13 +31,14 @@ db.exec(`
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
 
-  CREATE TABLE IF NOT EXISTS passkeys (
+  CREATE TABLE IF NOT EXISTS credentials (
     id TEXT PRIMARY KEY,
+    public_key TEXT NOT NULL,
+    aaguid TEXT NOT NULL,
+    synced INTEGER NOT NULL,
+    registered INTEGER NOT NULL,
+    last_used INTEGER,
     user_id TEXT NOT NULL,
-    credential_id TEXT UNIQUE NOT NULL,
-    public_key BLOB NOT NULL,
-    counter INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
 `);
