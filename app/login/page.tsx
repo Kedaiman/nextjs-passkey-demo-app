@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import PasskeyLoginButton from "./PasskeyLoginButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,11 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handlePasskeyLogin() {
-    // TODO: パスキーによるログイン処理
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
+async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -93,14 +90,7 @@ export default function LoginPage() {
           <hr className="flex-1 border-gray-200" />
         </div>
 
-        <button
-          type="button"
-          onClick={handlePasskeyLogin}
-          disabled={loading}
-          className="mt-4 w-full rounded-lg bg-green-600 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
-        >
-          パスキーでログイン
-        </button>
+        <PasskeyLoginButton />
 
         <p className="mt-4 text-center text-sm text-gray-500">
           No account?{" "}
