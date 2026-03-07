@@ -1,18 +1,18 @@
 import db from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
 const RP_NAME = "Passkey Demo";
-// Vercel であれば環境変数 VERCEL_URL が設定される（例: "my-app.vercel.app"）。ローカル開発環境では "localhost" を使用。
-const RP_ID = process.env.VERCEL_URL || "localhost";
 
 type PasskeyRow = { credential_id: string };
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const session = await getSession();
+  // ホストヘッダーからRP IDを動的に取得（ポート番号は除去）
+  const rpId = (req.headers.get("host") || "localhost").split(":")[0];
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -24,7 +24,7 @@ export async function POST() {
 
   const options = await generateRegistrationOptions({
     rpName: RP_NAME,
-    rpID: RP_ID,
+    rpID: rpId,
     userName: session.email,
     attestationType: "none",
     excludeCredentials: existingPasskeys.map((p) => ({ id: p.credential_id })),
