@@ -24,15 +24,24 @@ db.exec(`
     created_at TEXT NOT NULL
   );
 
-  CREATE TABLE IF NOT EXISTS passkeys (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    credential_id TEXT UNIQUE NOT NULL,
-    public_key BLOB NOT NULL,
-    counter INTEGER NOT NULL DEFAULT 0,
+  CREATE TABLE IF NOT EXISTS challenges (
+    user_id TEXT PRIMARY KEY,
+    challenge TEXT NOT NULL,
     created_at TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
+
+  CREATE TABLE IF NOT EXISTS credentials (
+    id TEXT PRIMARY KEY,
+    public_key TEXT NOT NULL,
+    aaguid TEXT NOT NULL,
+    synced INTEGER NOT NULL,
+    registered INTEGER NOT NULL,
+    last_used INTEGER,
+    user_id TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  );
 `);
+
 
 export default db;

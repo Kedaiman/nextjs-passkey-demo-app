@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
 import LogoutButton from "./LogoutButton";
+import PasskeySupport from "./PasskeySupport";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -24,11 +25,7 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        <div className="mt-6 rounded-xl border border-dashed border-gray-300 p-4 text-center">
-          <p className="text-sm text-gray-500">
-            Passkey features will be added here
-          </p>
-        </div>
+        <PasskeySupport />
       </div>
     </div>
   );
