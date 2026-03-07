@@ -1,5 +1,6 @@
 "use client";
 
+import { startRegistration } from "@simplewebauthn/browser";
 import { useEffect, useState } from "react";
 
 type SupportStatus = "checking" | "supported" | "unsupported";
@@ -13,15 +14,7 @@ const getInitialStatus = (): SupportStatus => {
   return "checking";
 };
 
-type PasskeySupportProps = {
-  userId: string;
-  email: string;
-};
-
-export default function PasskeySupport({
-  userId,
-  email,
-}: PasskeySupportProps) {
+export default function PasskeySupport() {
   // const [ステートの値, ステートを更新する関数] = useState<ステートの型>(初期値);
   const [status, setStatus] = useState<SupportStatus>(getInitialStatus);
   const [conditionalMediationAvailable, setConditionalMediationAvailable] =
@@ -74,36 +67,16 @@ export default function PasskeySupport({
   }
 
   async function handleCreatePasskey() {
-    const challenge = new Uint8Array(32);
-    crypto.getRandomValues(challenge);
-
-    const publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptions =
-      {
-        challenge,
-        rp: {
-          name: "Passkey Demo",
-          // id: "vercel.app",
-        },
-        user: {
-          id: new TextEncoder().encode(userId),
-          name: email,
-          displayName: email,
-        },
-        pubKeyCredParams: [
-          { alg: -8, type: "public-key" }, // Ed25519
-          { alg: -7, type: "public-key" }, // ES256
-          { alg: -257, type: "public-key" }, // RS256
-        ],
-        excludeCredentials: [],
-        authenticatorSelection: {
-          authenticatorAttachment: "platform",
-          requireResidentKey: true,
-          userVerification: "preferred",
-        },
-      };
-    await navigator.credentials.create({
-      publicKey: publicKeyCredentialCreationOptions,
+    // API経由でパスキー作成オプション（challenge含む)を取得
+    const optionsRes = await fetch("/api/passkey/register/options", {
+      method: "POST",
     });
+    if (!optionsRes.ok) {
+      alert("オプションの取得に失敗しました");
+      return;
+    }
+    const options = await optionsRes.json();
+    await startRegistration({ optionsJSON: options });
   }
 
   if (status === "supported") {

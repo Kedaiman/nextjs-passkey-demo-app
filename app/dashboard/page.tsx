@@ -25,7 +25,7 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        <PasskeySupport userId={session.userId} email={session.email} />
+        <PasskeySupport />
       </div>
     </div>
   );
