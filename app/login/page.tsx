@@ -11,6 +11,10 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  async function handlePasskeyLogin() {
+    // TODO: パスキーによるログイン処理
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -82,6 +86,21 @@ export default function LoginPage() {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        <div className="mt-4 flex items-center gap-3">
+          <hr className="flex-1 border-gray-200" />
+          <span className="text-xs text-gray-400">または</span>
+          <hr className="flex-1 border-gray-200" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handlePasskeyLogin}
+          disabled={loading}
+          className="mt-4 w-full rounded-lg bg-green-600 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+        >
+          パスキーでログイン
+        </button>
 
         <p className="mt-4 text-center text-sm text-gray-500">
           No account?{" "}
