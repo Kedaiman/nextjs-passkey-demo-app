@@ -1,10 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 export default function PasskeyDeleteButton({ id }: { id: string }) {
-  const router = useRouter();
-
   async function handleDelete() {
     const res = await fetch("/api/passkey/delete", {
       method: "DELETE",
@@ -13,7 +9,7 @@ export default function PasskeyDeleteButton({ id }: { id: string }) {
     });
 
     if (res.ok) {
-      router.refresh();
+      window.location.reload();
     } else {
       alert("削除に失敗しました");
     }
