@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import LogoutButton from "./LogoutButton";
+import PasskeyList from "./PasskeyList";
 import PasskeySupport from "./PasskeySupport";
 
 export default async function DashboardPage() {
@@ -26,6 +27,13 @@ export default async function DashboardPage() {
         </div>
 
         <PasskeySupport />
+
+        <div className="mt-6">
+          <h2 className="mb-2 text-sm font-semibold text-gray-700">
+            登録済みパスキー
+          </h2>
+          <PasskeyList />
+        </div>
       </div>
     </div>
   );
