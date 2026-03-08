@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { isoBase64URL, isoUint8Array } from "@simplewebauthn/server/helpers";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -23,5 +24,9 @@ export async function GET() {
     )
     .all(session.userId) as CredentialRow[];
 
-  return NextResponse.json(credentials);
+  const userIdBase64url = isoBase64URL.fromBuffer(
+    isoUint8Array.fromUTF8String(session.userId),
+  );
+
+  return NextResponse.json({ userIdBase64url, credentials });
 }

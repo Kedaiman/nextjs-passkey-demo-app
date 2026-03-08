@@ -24,10 +24,39 @@ export default function PasskeyList() {
   const [passkeys, setPasskeys] = useState<PasskeyItem[]>([]);
 
   useEffect(() => {
-    fetch("/api/passkey/credentials")
-      .then((res) => res.json())
-      .then(setPasskeys)
-      .catch(console.error);
+    async function fetchAndSignal() {
+      const res = await fetch("/api/passkey/credentials");
+      const {
+        userIdBase64url,
+        credentials,
+      }: { userIdBase64url: string; credentials: PasskeyItem[] } =
+        await res.json();
+
+      setPasskeys(credentials);
+
+      if (
+        window.PublicKeyCredential &&
+        "signalAllAcceptedCredentials" in PublicKeyCredential
+      ) {
+        try {
+          await (
+            PublicKeyCredential.signalAllAcceptedCredentials as (options: {
+              rpId: string;
+              userId: string;
+              allAcceptedCredentialIds: string[];
+            }) => Promise<void>
+          )({
+            rpId: window.location.hostname,
+            userId: userIdBase64url,
+            allAcceptedCredentialIds: credentials.map((pk) => pk.id),
+          });
+        } catch (e) {
+          console.error("signalAllAcceptedCredentials failed:", e);
+        }
+      }
+    }
+
+    fetchAndSignal().catch(console.error);
   }, []);
 
   if (passkeys.length === 0) {
