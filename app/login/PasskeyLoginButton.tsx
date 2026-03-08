@@ -1,5 +1,6 @@
 "use client";
 
+import { startAuthentication } from "@simplewebauthn/browser";
 import { useEffect, useState } from "react";
 
 async function isPasskeyAvailable(): Promise<boolean> {
@@ -18,22 +19,37 @@ export default function PasskeyLoginButton() {
   }, []);
 
   async function handlePasskeyLogin() {
-    // NOTE: 本来はサーバから認証オプションを取得するが、一旦固定値で実装
-    const challenge = new Uint8Array(32);
-    crypto.getRandomValues(challenge);
-    const publicKeyCredentialRequestOptions: PublicKeyCredentialRequestOptions =
-      {
-        // チャレンジ
-        challenge,
-        // RPのドメインを指定
-        rpId: "localhost",
-        // ローカルユーザ検証の設定
-        userVerification: "required",
-      };
-
-    const credential = await navigator.credentials.get({
-      publicKey: publicKeyCredentialRequestOptions,
+    // 認証オプションをサーバから取得
+    const optionsRes = await fetch("/api/passkey/authenticate/options", {
+      method: "POST",
     });
+    if (!optionsRes.ok) {
+      alert("認証オプションの取得に失敗しました");
+      return;
+    }
+    const options = await optionsRes.json();
+
+    // パスキー認証を実行
+    let credential;
+    try {
+      credential = await startAuthentication({ optionsJSON: options });
+    } catch (e) {
+      alert("認証がキャンセルされたか、エラーが発生しました");
+      return;
+    }
+
+    // 認証結果をサーバに送信
+    const verifyRes = await fetch("/api/passkey/authenticate/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credential),
+    });
+
+    if (verifyRes.ok) {
+      window.location.href = "/dashboard";
+    } else {
+      alert("認証に失敗しました");
+    }
   }
 
   return (

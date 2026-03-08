@@ -5,18 +5,9 @@ import { useEffect, useState } from "react";
 
 type SupportStatus = "checking" | "supported" | "unsupported";
 
-const getInitialStatus = (): SupportStatus => {
-  // ブラウザがパスキーをサポートしているか確認
-  if (typeof window === "undefined" || !window.PublicKeyCredential) {
-    return "unsupported";
-  }
-
-  return "checking";
-};
-
 export default function PasskeySupport() {
   // const [ステートの値, ステートを更新する関数] = useState<ステートの型>(初期値);
-  const [status, setStatus] = useState<SupportStatus>(getInitialStatus);
+  const [status, setStatus] = useState<SupportStatus>("checking");
   const [conditionalMediationAvailable, setConditionalMediationAvailable] =
     useState<boolean | null>(null);
 
@@ -28,6 +19,7 @@ export default function PasskeySupport() {
   useEffect(() => {
     // ブラウザがパスキーをサポートしているか確認
     if (typeof window === "undefined" || !window.PublicKeyCredential) {
+      setStatus("unsupported");
       return;
     }
 
@@ -94,8 +86,8 @@ export default function PasskeySupport() {
       body: JSON.stringify(credentil),
     });
     const verifyData = await verifyRes.json();
-    if (!verifyData.success) {
-      alert(`パスキーの登録に失敗しました"}`);
+    if (!verifyData.ok) {
+      alert("パスキーの登録に失敗しました");
       return;
     }
   }
