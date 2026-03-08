@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import { getSession } from "@/lib/session";
+import PasskeyDeleteButton from "./PasskeyDeleteButton";
 
 type PasskeyRow = {
   id: string;
@@ -65,6 +66,7 @@ export default async function PasskeyList() {
                 最終利用：{pk.last_used ? formatDate(pk.last_used) : "未使用"}
               </p>
             </div>
+            <PasskeyDeleteButton id={pk.id} />
           </li>
         );
       })}
