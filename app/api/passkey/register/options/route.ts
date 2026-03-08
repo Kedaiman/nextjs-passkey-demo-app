@@ -1,6 +1,7 @@
 import db from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
+import { isoUint8Array } from "@simplewebauthn/server/helpers";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest) {
   const options = await generateRegistrationOptions({
     rpName: RP_NAME,
     rpID: rpId,
+    userID: isoUint8Array.fromUTF8String(session.userId),
     userName: session.email,
     attestationType: "none",
     excludeCredentials: existingCredentials.map((c) => ({ id: c.id })),
