@@ -14,12 +14,14 @@ export default function PasskeySupport() {
 
   useEffect(() => {
     if (typeof window === "undefined" || !browserSupportsWebAuthn()) {
-      setCaps({
-        webAuthn: false,
-        platformAuthenticator: false,
-        autofill: false,
-        automaticUpgrade: false,
-      });
+      Promise.resolve().then(() =>
+        setCaps({
+          webAuthn: false,
+          platformAuthenticator: false,
+          autofill: false,
+          automaticUpgrade: false,
+        }),
+      );
       return;
     }
 
