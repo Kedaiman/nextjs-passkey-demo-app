@@ -1,54 +1,62 @@
 "use client";
 
-import { startAuthentication } from "@simplewebauthn/browser";
+import {
+  browserSupportsWebAuthn,
+  browserSupportsWebAuthnAutofill,
+  startAuthentication,
+} from "@simplewebauthn/browser";
 import { useEffect, useState } from "react";
 
-async function isPasskeyAvailable(): Promise<boolean> {
-  if (window.PublicKeyCredential) {
-    // NOTE: クロスデバイス認証は利用可能なため、PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()をチェックしない
-    return true;
-  }
-  return false;
+async function authenticate(useBrowserAutofill = false): Promise<boolean> {
+  // 認証オプションをサーバから取得
+  const optionsRes = await fetch("/api/passkey/authenticate/options", {
+    method: "POST",
+  });
+  if (!optionsRes.ok) return false;
+  const options = await optionsRes.json();
+
+  // パスキー認証レスポンスを取得
+  const credential = await startAuthentication({ optionsJSON: options, useBrowserAutofill });
+  // 取得したレスポンスをサーバに送信して検証
+  const verifyRes = await fetch("/api/passkey/authenticate/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credential),
+  });
+  return verifyRes.ok;
 }
 
 export default function PasskeyLoginButton() {
   const [available, setAvailable] = useState(false);
 
   useEffect(() => {
-    isPasskeyAvailable().then(setAvailable);
+    if (!browserSupportsWebAuthn()) return;
+    Promise.resolve().then(() => setAvailable(true));
+
+    // Conditional UI: ページ読み込み時にバックグラウンドで待機
+    (async () => {
+      const supported = await browserSupportsWebAuthnAutofill();
+      if (!supported) return;
+      try {
+        const ok = await authenticate(true);
+        if (ok) window.location.href = "/dashboard";
+      } catch {
+        // Conditional UI を使わなかった場合やボタン押下で中断された場合は無視
+      }
+    })();
   }, []);
 
   async function handlePasskeyLogin() {
-    // 認証オプションをサーバから取得
-    const optionsRes = await fetch("/api/passkey/authenticate/options", {
-      method: "POST",
-    });
-    if (!optionsRes.ok) {
-      alert("認証オプションの取得に失敗しました");
-      return;
-    }
-    const options = await optionsRes.json();
-
-    // パスキー認証を実行
-    let credential;
+    // ボタン押下時は明示的に認証を開始（Conditional UIのリクエストは自動的に中断される）
     try {
-      credential = await startAuthentication({ optionsJSON: options });
+      const success = await authenticate();
+      if (success) {
+        window.location.href = "/dashboard";
+      } else {
+        alert("認証に失敗しました");
+      }
     } catch {
       alert("認証がキャンセルされたか、エラーが発生しました");
-      return;
-    }
-
-    // 認証結果をサーバに送信
-    const verifyRes = await fetch("/api/passkey/authenticate/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(credential),
-    });
-
-    if (verifyRes.ok) {
-      window.location.href = "/dashboard";
-    } else {
-      alert("認証に失敗しました");
     }
   }
 
