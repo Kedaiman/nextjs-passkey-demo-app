@@ -66,7 +66,6 @@ export default function PasskeySupport() {
       method: "POST",
       body: JSON.stringify(credential),
     });
-    const verifyData = await verifyRes.json();
     if (verifyRes.ok) {
       router.refresh();
     } else {
