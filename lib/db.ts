@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
-import path from "path";
 import fs from "fs";
+import path from "path";
 
 const DB_PATH =
   process.env.DATABASE_PATH ||
@@ -31,6 +31,12 @@ db.exec(`
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
 
+  CREATE TABLE IF NOT EXISTS auth_challenges (
+    id TEXT PRIMARY KEY,
+    challenge TEXT NOT NULL,
+    expires_at INTEGER NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS credentials (
     id TEXT PRIMARY KEY,
     public_key TEXT NOT NULL,
@@ -38,10 +44,10 @@ db.exec(`
     synced INTEGER NOT NULL,
     registered INTEGER NOT NULL,
     last_used INTEGER,
+    counter INTEGER NOT NULL DEFAULT 0,
     user_id TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
 `);
-
 
 export default db;

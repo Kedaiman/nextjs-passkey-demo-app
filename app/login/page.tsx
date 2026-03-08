@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import PasskeyLoginButton from "./PasskeyLoginButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -82,6 +83,14 @@ export default function LoginPage() {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        <div className="mt-4 flex items-center gap-3">
+          <hr className="flex-1 border-gray-200" />
+          <span className="text-xs text-gray-400">または</span>
+          <hr className="flex-1 border-gray-200" />
+        </div>
+
+        <PasskeyLoginButton />
 
         <p className="mt-4 text-center text-sm text-gray-500">
           No account?{" "}

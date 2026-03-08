@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     };
     // excludeCredentials で重複は弾かれているため INSERT のみ（重複時はエラー）
     db.prepare(
-      "INSERT INTO credentials (id, public_key, aaguid, synced, registered, last_used, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO credentials (id, public_key, aaguid, synced, registered, last_used, counter, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     ).run(
       cred.id,
       cred.publicKey,
@@ -80,10 +80,11 @@ export async function POST(req: NextRequest) {
       cred.synced ? 1 : 0,
       cred.registered,
       cred.last_used,
+      credential.counter,
       cred.user_id,
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Verification failed" },
