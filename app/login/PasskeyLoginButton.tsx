@@ -33,7 +33,7 @@ export default function PasskeyLoginButton() {
     let credential;
     try {
       credential = await startAuthentication({ optionsJSON: options });
-    } catch (e) {
+    } catch {
       alert("認証がキャンセルされたか、エラーが発生しました");
       return;
     }

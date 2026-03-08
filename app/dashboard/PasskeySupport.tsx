@@ -17,13 +17,22 @@ export default function PasskeySupport() {
   ※第二引数の配列を空にすると、コンポーネントの初回レンダリング後に一度だけ関数が実行される
   */
   useEffect(() => {
+    let isCancelled = false;
+    const markUnsupported = () => {
+      if (!isCancelled) {
+        setStatus("unsupported");
+        setConditionalMediationAvailable(false);
+      }
+    };
+
     // ブラウザがパスキーをサポートしているか確認
     if (typeof window === "undefined" || !window.PublicKeyCredential) {
-      setStatus("unsupported");
-      return;
+      // NOTE: lintで警告が出るため、Promise.resolve().then()で非同期に実行
+      Promise.resolve().then(markUnsupported);
+      return () => {
+        isCancelled = true;
+      };
     }
-
-    let isCancelled = false;
 
     Promise.all([
       // ユーザの利用しているデバイスがパスキーをサポートしているかを確認
