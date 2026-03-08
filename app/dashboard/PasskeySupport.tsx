@@ -6,13 +6,11 @@ import {
   platformAuthenticatorIsAvailable,
   startRegistration,
 } from "@simplewebauthn/browser";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import PasskeyCapabilities, { type Capabilities } from "./PasskeyCapabilities";
 
 export default function PasskeySupport() {
   const [caps, setCaps] = useState<Capabilities | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (typeof window === "undefined" || !browserSupportsWebAuthn()) {
@@ -67,7 +65,7 @@ export default function PasskeySupport() {
       body: JSON.stringify(credential),
     });
     if (verifyRes.ok) {
-      router.refresh();
+      window.location.reload();
     } else {
       alert("パスキーの登録に失敗しました");
       return;

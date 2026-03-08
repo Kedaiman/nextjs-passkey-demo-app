@@ -1,8 +1,9 @@
-import db from "@/lib/db";
-import { getSession } from "@/lib/session";
+"use client";
+
+import { useEffect, useState } from "react";
 import PasskeyDeleteButton from "./PasskeyDeleteButton";
 
-type PasskeyRow = {
+type PasskeyItem = {
   id: string;
   synced: number;
   registered: number;
@@ -19,13 +20,15 @@ function formatDate(ts: number): string {
   });
 }
 
-export default async function PasskeyList() {
-  const session = await getSession();
-  const passkeys = db
-    .prepare(
-      "SELECT id, synced, registered, last_used FROM credentials WHERE user_id = ? ORDER BY registered DESC",
-    )
-    .all(session!.userId) as PasskeyRow[];
+export default function PasskeyList() {
+  const [passkeys, setPasskeys] = useState<PasskeyItem[]>([]);
+
+  useEffect(() => {
+    fetch("/api/passkey/credentials")
+      .then((res) => res.json())
+      .then(setPasskeys)
+      .catch(console.error);
+  }, []);
 
   if (passkeys.length === 0) {
     return (
